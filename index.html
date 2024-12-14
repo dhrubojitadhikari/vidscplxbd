@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie & TV Embed Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        input, button {
+            margin: 5px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Embed Manager</h1>
+    <form id="movie-form">
+        <h2>Add a Movie</h2>
+        <input type="text" id="movie-imdb-id" placeholder="Enter IMDb ID (e.g., tt17048514)" required>
+        <button type="button" onclick="addMovie()">Add Movie</button>
+    </form>
+    <form id="tv-form">
+        <h2>Add a TV Series</h2>
+        <input type="text" id="tv-imdb-id" placeholder="Enter IMDb ID (e.g., tt18382028)" required>
+        <input type="number" id="season" placeholder="Enter Season (optional)">
+        <input type="number" id="episode" placeholder="Enter Episode (optional)">
+        <button type="button" onclick="addTV()">Add TV Series</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        const baseURL = "https://your-app-url"; // Replace with your deployed backend URL
+
+        function displayResult(message) {
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = `<p>${message}</p>`;
+        }
+
+        async function addMovie() {
+            const imdbID = document.getElementById("movie-imdb-id").value;
+            if (!imdbID) {
+                alert("Please enter an IMDb ID");
+                return;
+            }
+
+            const response = await fetch(`${baseURL}/add/movie`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ imdb_id: imdbID }),
+            });
+
+            const data = await response.json();
+            displayResult(`Movie added: ${data.title} (${data.embed_url})`);
+        }
+
+        async function addTV() {
+            const imdbID = document.getElementById("tv-imdb-id").value;
+            const season = document.getElementById("season").value;
+            const episode = document.getElementById("episode").value;
+
+            if (!imdbID) {
+                alert("Please enter an IMDb ID");
+                return;
+            }
+
+            const response = await fetch(`${baseURL}/add/tv`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ imdb_id: imdbID, season: season || null, episode: episode || null }),
+            });
+
+            const data = await response.json();
+            displayResult(`TV Show added: ${data.title} (${data.embed_url})`);
+        }
+    </script>
+</body>
+</html>
